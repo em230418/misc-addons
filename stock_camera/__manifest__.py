@@ -22,7 +22,7 @@
     ],
     "external_dependencies": {"python": ["cv2"], "bin": []},
     "data": [
-        'security/stock_camera_config_ir.model.access.csv',
+        'security/ir.model.access.csv',
     ],
     "demo": [
     ],
