@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2019 Eugene Molotov <https://it-projects.info/team/em230418>
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html). -->
+<odoo>
+    <record id='stock_camera_config_form' model='ir.ui.view'>
+        <field name="name">stock.camera.config.form</field>
+        <field name="model">stock.camera.config</field>
+        <field name="arch" type="xml">
+            <form string="Backup">
+                <sheet>
+                    <group>
+                        <field name="title"/>
+                        <field name="uri"/>
+                    </group>
+                </sheet>
+            </form>
+    </field>
+    </record>
+    
+    <record model="ir.ui.view" id="stock_camera_config_tree">
+        <field name="name">stock.camera.config.tree</field>
+        <field name="model">stock.camera.config</field>
+        <field name="arch" type="xml">
+        <tree>
+            <field name="title" />
+        </tree>
+        </field>
+    </record>
+    
+    <record model="ir.actions.server" id="action_stock_camera_watch">
+        <field name="name">Watch</field>
+        <field name="model_id" ref="model_stock_camera_config"/>
+        <field name="binding_model_id" ref="model_stock_camera_config"/>
+        <field name="state">code</field>
+        <field name="condition">True</field>
+        <field name="code">
+            action = model.watch_action()
+        </field>
+    </record>
+
+    <record id="action_stock_camera" model="ir.actions.act_window">
+        <field name="name">Stock cameras</field>
+        <field name="res_model">stock.camera.config</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    
+    <menuitem id="menu_stock_camera_settings" name="Camera configuration" parent="stock.menu_stock_config_settings"
+              sequence="1" groups="stock.group_stock_manager" action="action_stock_camera"/>
+
+</odoo>
