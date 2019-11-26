@@ -28,35 +28,45 @@ class TestProductTmplImage(HttpCase):
 
         env['ir.config_parameter'].set_param('ir_attachment_url.storage', 'url')
 
+        # 12.0 -> 13.0 porting notes
+        # 1. image fields are renamed: https://github.com/odoo/odoo/commit/58a2ffa26f1a3b0f9630ce16d11b758d18e20a21
+        # 2. image_64 (previously a.k.a image_small) is removed: https://github.com/odoo/odoo/commit/b6288e54461426d7aac6cfc549cee3e90309a093 
         product_tmpl = env['product.template'].create({
             'name': 'Test template',
-            'image': self._get_original_image_url(1024),
-            'image_medium': self._get_original_image_url(128),
-            'image_small': self._get_original_image_url(64),
+            'image_1920': self._get_original_image_url(1920),
+            'image_1024': self._get_original_image_url(1024),
+            'image_512': self._get_original_image_url(512),
+            'image_128': self._get_original_image_url(128),
         })
 
+        import wdb; wdb.set_trace()
         product_product = env['product.product'].create({
             'name': 'Test product',
-            'image': False,
-            'image_medium': False,
-            'image_small': False,
+            'image_1920': False,
+            'image_1024': False,
+            'image_512': False,
+            'image_128': False,
             'product_tmpl_id': product_tmpl.id
         })
 
-        odoo_image_url = self._get_odoo_image_url('product.product', product_product.id, 'image')
-        odoo_image_medium_url = self._get_odoo_image_url('product.product', product_product.id, 'image_medium')
-        odoo_image_small_url = self._get_odoo_image_url('product.product', product_product.id, 'image_small')
+        odoo_image_url_1920 = self._get_odoo_image_url('product.product', product_product.id, 'image_1920')
+        odoo_image_url_1024 = self._get_odoo_image_url('product.product', product_product.id, 'image_1024')
+        odoo_image_url_512 = self._get_odoo_image_url('product.product', product_product.id, 'image_512')
+        odoo_image_url_128 = self._get_odoo_image_url('product.product', product_product.id, 'image_128')
 
-        product_tmpl_image_attachment = env['ir.http'].find_field_attachment(env, 'product.template', 'image', product_tmpl)
-        product_tmpl_image_medium_attachment = env['ir.http'].find_field_attachment(env, 'product.template', 'image_medium', product_tmpl)
-        product_tmpl_image_small_attachment = env['ir.http'].find_field_attachment(env, 'product.template', 'image_small', product_tmpl)
+        product_tmpl_image_attachment_1920 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_1920', product_tmpl)
+        product_tmpl_image_attachment_1024 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_1024', product_tmpl)
+        product_tmpl_image_attachment_512 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_512', product_tmpl)
+        product_tmpl_image_attachment_128 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_128', product_tmpl)
 
-        self.assertTrue(product_tmpl_image_attachment)
-        self.assertTrue(product_tmpl_image_medium_attachment)
-        self.assertTrue(product_tmpl_image_small_attachment)
+        self.assertTrue(product_tmpl_image_1920)
+        self.assertTrue(product_tmpl_image_1024)
+        self.assertTrue(product_tmpl_image_512)
+        self.assertTrue(product_tmpl_image_128)
 
         self.authenticate('demo', 'demo')
 
-        self.assertEqual(self.url_open(odoo_image_url).url, product_tmpl_image_attachment.url)
-        self.assertEqual(self.url_open(odoo_image_medium_url).url, product_tmpl_image_medium_attachment.url)
-        self.assertEqual(self.url_open(odoo_image_small_url).url, product_tmpl_image_small_attachment.url)
+        self.assertEqual(self.url_open(odoo_image_url_1920).url, product_tmpl_image_attachment_1920.url)
+        self.assertEqual(self.url_open(odoo_image_url_1024).url, product_tmpl_image_attachment_1024.url)
+        self.assertEqual(self.url_open(odoo_image_url_512).url, product_tmpl_image_attachment_512.url)
+        self.assertEqual(self.url_open(odoo_image_url_128).url, product_tmpl_image_attachment_128.url)

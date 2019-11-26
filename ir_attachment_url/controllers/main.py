@@ -3,10 +3,7 @@ import requests
 import werkzeug
 
 from odoo.http import request
-from odoo import http, SUPERUSER_ID
-# TODO: https://github.com/odoo/odoo/commit/7d85ab1eac6dbf33d56c6a1f8bf7e9e12bb8008e
-# from odoo.addons.web.controllers.main import binary_content
-binary_content = None
+from odoo import http
 from odoo.exceptions import AccessError
 
 from odoo.addons.mail.controllers.main import MailController
@@ -15,6 +12,7 @@ from ..models.image import is_url
 
 class MailControllerExtended(MailController):
 
+    # based on https://github.com/odoo/odoo/blob/cf2c7727189dc7a8846045c1492c7da6c5382758/addons/mail/controllers/main.py#L210-L226
     @http.route()
     def avatar(self, res_model, res_id, partner_id):
         headers = [('Content-Type', 'image/png')]
@@ -25,7 +23,8 @@ class MailControllerExtended(MailController):
                 # if the current user has access to the document, get the partner avatar as sudo()
                 request.env[res_model].browse(res_id).check_access_rule('read')
                 if partner_id in request.env[res_model].browse(res_id).sudo().exists().message_ids.mapped('author_id').ids:
-                    status, headers, _content = binary_content(model='res.partner', id=partner_id, field='image_medium', default_mimetype='image/png', env=request.env(user=SUPERUSER_ID))
+                    status, headers, _content = request.env['ir.http'].sudo().binary_content(
+                        model='res.partner', id=partner_id, field='image_128', default_mimetype='image/png')
                     # binary content return an empty string and not a placeholder if obj[field] is False
                     if _content != '':
                         content = _content

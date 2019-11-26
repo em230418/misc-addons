@@ -8,6 +8,7 @@ import requests
 from odoo.tools.mimetypes import guess_mimetype
 from . import image
 
+# TODO: anything to rewrite?
 
 def get_mimetype_and_optional_content_by_url(url):
     mimetype = mimetypes.guess_type(url)[0]
@@ -30,6 +31,30 @@ def get_mimetype_and_optional_content_by_url(url):
 
 class Binary(fields.Binary):
 
+    def create(self, record_values):
+        assert self.attachment
+        if not record_values:
+            return
+        # create the attachments that store the values
+        env = record_values[0][0].env
+
+        with env.norecompute():
+            env['ir.attachment'].sudo().with_context(
+                binary_field_real_user=env.user,
+            ).create([{
+                    'name': self.name,
+                    'res_model': self.model_name,
+                    'res_field': self.name,
+                    'res_id': record.id,
+                    'type': 'url',
+                    'url': value,
+                }
+                for record, value in filter(lambda x: image.is_url(x[1]), record_values)
+                if value
+            ])
+        super(Binary, self).create(list(filter(lambda x: not image.is_url(x[1]), record_values)))
+
+    '''
     def write(self, records, value):
         domain = [
             ('res_model', '=', self.model_name),
@@ -80,6 +105,7 @@ class Binary(fields.Binary):
                     atts.unlink()
         else:
             super(Binary, self).write(records, value)
-
+    '''
 
 fields.Binary = Binary
+fields.Image.__bases__ = (Binary,)
