@@ -16,7 +16,7 @@ class IrAttachment(models.Model):
             bin_data = bytearray(value, 'utf-8')
             vals = {
                 'checksum': self._compute_checksum(bin_data),
-                'index_content': self._index(bin_data, attach.datas_fname, attach.mimetype),
+                'index_content': self._index(bin_data, attach.mimetype),
                 'store_fname': False,
                 'db_datas': False,
                 'url': value,

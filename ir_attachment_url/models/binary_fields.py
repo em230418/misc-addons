@@ -54,6 +54,11 @@ class Binary(fields.Binary):
             ])
         super(Binary, self).create(list(filter(lambda x: not image.is_url(x[1]), record_values)))
 
+    def convert_to_cache(self, value, record, validate=True):
+        if image.is_url(value):
+            return value
+        return super(Binary, self).convert_to_cache(value, record, validate)
+
     '''
     def write(self, records, value):
         domain = [

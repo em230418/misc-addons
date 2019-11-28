@@ -18,8 +18,6 @@ def is_url(value):
 
 def image_process(base64_source, size=(0, 0), verify_resolution=False, quality=0, crop=None, colorize=False, output_format=""):
     source_for_check = base64_source.decode("utf-8") if isinstance(base64_source, bytes) else base64_source
-    if source_for_check:
-        print(source_for_check[:100])
     if is_url(source_for_check):
         return source_for_check
     return super_image_process(base64_source, size, verify_resolution, quality, crop, colorize, output_format)
