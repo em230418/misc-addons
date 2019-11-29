@@ -30,16 +30,23 @@ class TestProductTmplImage(HttpCase):
 
         # 12.0 -> 13.0 porting notes
         # 1. image fields are renamed: https://github.com/odoo/odoo/commit/58a2ffa26f1a3b0f9630ce16d11b758d18e20a21
-        # 2. image_64 (previously a.k.a image_small) is removed: https://github.com/odoo/odoo/commit/b6288e54461426d7aac6cfc549cee3e90309a093 
+        # 2. image_64 (previously a.k.a image_small) is removed: https://github.com/odoo/odoo/commit/b6288e54461426d7aac6cfc549cee3e90309a093
+
+        dummy_attr = self.env['product.attribute'].create({'name': 'Dummy'})
+        dummy_attr_value = self.env['product.attribute.value'].create({'name': 'Dummy value', 'attribute_id': dummy_attr.id})
+
         product_tmpl = env['product.template'].create({
             'name': 'Test template',
             'image_1920': self._get_original_image_url(1920),
             'image_1024': self._get_original_image_url(1024),
             'image_512': self._get_original_image_url(512),
             'image_128': self._get_original_image_url(128),
+            'attribute_line_ids': [(0, 0, {
+                'attribute_id': dummy_attr.id,
+                'value_ids': [(4, dummy_attr_value.id)],
+            })]
         })
 
-        import wdb; wdb.set_trace()
         product_product = env['product.product'].create({
             'name': 'Test product',
             'image_1920': False,
@@ -59,10 +66,10 @@ class TestProductTmplImage(HttpCase):
         product_tmpl_image_attachment_512 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_512', product_tmpl)
         product_tmpl_image_attachment_128 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_128', product_tmpl)
 
-        self.assertTrue(product_tmpl_image_1920)
-        self.assertTrue(product_tmpl_image_1024)
-        self.assertTrue(product_tmpl_image_512)
-        self.assertTrue(product_tmpl_image_128)
+        self.assertTrue(product_tmpl_image_attachment_1920)
+        self.assertTrue(product_tmpl_image_attachment_1024)
+        self.assertTrue(product_tmpl_image_attachment_512)
+        self.assertTrue(product_tmpl_image_attachment_128)
 
         self.authenticate('demo', 'demo')
 
