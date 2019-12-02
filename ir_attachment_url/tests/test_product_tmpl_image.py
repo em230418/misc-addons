@@ -40,6 +40,7 @@ class TestProductTmplImage(HttpCase):
             'image_1920': self._get_original_image_url(1920),
             'image_1024': self._get_original_image_url(1024),
             'image_512': self._get_original_image_url(512),
+            'image_256': self._get_original_image_url(256),
             'image_128': self._get_original_image_url(128),
             'attribute_line_ids': [(0, 0, {
                 'attribute_id': dummy_attr.id,
@@ -49,31 +50,31 @@ class TestProductTmplImage(HttpCase):
 
         product_product = env['product.product'].create({
             'name': 'Test product',
-            'image_1920': False,
-            'image_1024': False,
-            'image_512': False,
-            'image_128': False,
             'product_tmpl_id': product_tmpl.id
         })
 
         odoo_image_url_1920 = self._get_odoo_image_url('product.product', product_product.id, 'image_1920')
         odoo_image_url_1024 = self._get_odoo_image_url('product.product', product_product.id, 'image_1024')
         odoo_image_url_512 = self._get_odoo_image_url('product.product', product_product.id, 'image_512')
+        odoo_image_url_256 = self._get_odoo_image_url('product.product', product_product.id, 'image_256')
         odoo_image_url_128 = self._get_odoo_image_url('product.product', product_product.id, 'image_128')
 
         product_tmpl_image_attachment_1920 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_1920', product_tmpl)
         product_tmpl_image_attachment_1024 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_1024', product_tmpl)
         product_tmpl_image_attachment_512 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_512', product_tmpl)
+        product_tmpl_image_attachment_256 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_256', product_tmpl)
         product_tmpl_image_attachment_128 = env['ir.http'].find_field_attachment(env, 'product.template', 'image_128', product_tmpl)
 
-        self.assertTrue(product_tmpl_image_attachment_1920)
-        self.assertTrue(product_tmpl_image_attachment_1024)
-        self.assertTrue(product_tmpl_image_attachment_512)
-        self.assertTrue(product_tmpl_image_attachment_128)
+        self.assertTrue(len(product_tmpl_image_attachment_1920) == 1)
+        self.assertTrue(len(product_tmpl_image_attachment_1024) == 1)
+        self.assertTrue(len(product_tmpl_image_attachment_512) == 1)
+        self.assertTrue(len(product_tmpl_image_attachment_256) == 1)
+        self.assertTrue(len(product_tmpl_image_attachment_128) == 1)
 
         self.authenticate('demo', 'demo')
 
         self.assertEqual(self.url_open(odoo_image_url_1920).url, product_tmpl_image_attachment_1920.url)
         self.assertEqual(self.url_open(odoo_image_url_1024).url, product_tmpl_image_attachment_1024.url)
         self.assertEqual(self.url_open(odoo_image_url_512).url, product_tmpl_image_attachment_512.url)
+        self.assertEqual(self.url_open(odoo_image_url_256).url, product_tmpl_image_attachment_256.url)
         self.assertEqual(self.url_open(odoo_image_url_128).url, product_tmpl_image_attachment_128.url)

@@ -7,6 +7,7 @@ import requests
 
 from odoo.tools.mimetypes import guess_mimetype
 from . import image
+from .image_mixin import REGEX_IMAGE_FIELD
 
 # TODO: anything to rewrite?
 
@@ -59,58 +60,76 @@ class Binary(fields.Binary):
             return value
         return super(Binary, self).convert_to_cache(value, record, validate)
 
-    '''
     def write(self, records, value):
-        domain = [
-            ('res_model', '=', self.model_name),
-            ('res_field', '=', self.name),
-            ('res_id', 'in', records.ids),
-        ]
-        atts = records.env['ir.attachment'].sudo().search(domain)
-        if value and atts.url and atts.type == 'url' and not image.is_url(value):
-            atts.write({
-                'url': None,
-                'type': 'binary',
-            })
-        if value and image.is_url(value):
-            # save_option = records.env['ir.config_parameter'].get_param('ir_attachment_url.storage', default='url')
-            with records.env.norecompute():
-                # commented out some strange stuff
-                # https://github.com/it-projects-llc/misc-addons/pull/775/files#r302856876
-                # if value and save_option != 'url':
-                #     r = requests.get(value, timeout=5)
-                #     base64source = base64.b64encode(r.content)
-                #     super(Binary, self).write(records, base64source)
-                if value:
-                    mimetype, content = get_mimetype_and_optional_content_by_url(value)
-                    index_content = records.env['ir.attachment']._index(content, None, mimetype)
+        if not self.attachment:
+            return super().write(records, value)
 
-                    # update the existing attachments
-                    atts.write({
-                        'url': value,
-                        'mimetype': mimetype,
-                        'datas': None,
-                        'type': 'url',
-                        'index_content': index_content,
-                    })
+        # discard recomputation of self on records
+        records.env.remove_to_compute(self, records)
 
-                    # create the missing attachments
-                    for record in (records - records.browse(atts.mapped('res_id'))):
-                        atts.create({
+        # update the cache, and discard the records that are not modified
+        cache = records.env.cache
+        cache_value = self.convert_to_cache(value, records)
+        records = cache.get_records_different_from(records, self, cache_value)
+        if not records:
+            return records
+        if self.store:
+            # determine records that are known to be not null
+            not_null = cache.get_records_different_from(records, self, None)
+
+        cache.update(records, self, [cache_value] * len(records))
+
+        if not image.is_url(value):
+            return super(Binary, self).write(records, value)
+
+        # retrieve the attachments that store the values, and adapt them
+        if self.store:
+            atts = records.env['ir.attachment'].sudo()
+            if not_null:
+                atts = atts.search([
+                    ('res_model', '=', self.model_name),
+                    ('res_field', '=', self.name),
+                    ('res_id', 'in', records.ids),
+                ])
+            if value:
+                # update the existing attachments
+                atts_records = records.browse(atts.mapped('res_id'))
+                # create the missing attachments
+                missing = (records - atts_records).filtered('id')
+                if missing:
+                    atts.create([{
                             'name': self.name,
                             'res_model': record._name,
                             'res_field': self.name,
                             'res_id': record.id,
                             'type': 'url',
                             'url': value,
-                            'mimetype': mimetype,
-                            'index_content': index_content,
-                        })
-                else:
-                    atts.unlink()
-        else:
-            super(Binary, self).write(records, value)
-    '''
+                        }
+                        for record in missing
+                    ])
+            else:
+                atts.unlink()
+
+        return records
+
+
+    def compute_value(self, records):
+        """
+        Compute image_* value from exising image_src_* values, if present
+        """
+        match = REGEX_IMAGE_FIELD.match(self.name)
+        if not match:
+            return super(Binary, self).compute_value(records)
+
+        w = match.group(1)
+        src_field = 'image_src_' + w
+        records_with_image_src = records.filtered(lambda r: src_field in r and r[src_field])
+
+        for record in records_with_image_src:
+            record['image_' + w] = record[src_field]
+
+        super(Binary, self).compute_value(records - records_with_image_src)
+
 
 fields.Binary = Binary
 fields.Image.__bases__ = (Binary,)
