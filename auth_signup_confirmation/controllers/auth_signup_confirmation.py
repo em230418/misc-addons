@@ -1,14 +1,15 @@
 import werkzeug
-from openerp.addons.auth_signup.controllers.main import AuthSignupHome
-from openerp import http
-from openerp.http import request
+from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+from odoo.addons.auth_signup.models.res_users import SignupError
+from odoo import http, _
+from odoo.http import request
 
 
-class SignupDenied(Exception):
+class SignupDenied(SignupError):
     pass
 
 
-class UserExists(Exception):
+class UserExists(SignupError):
     pass
 
 
@@ -18,14 +19,15 @@ class AuthConfirm(AuthSignupHome):
         if token:
             return super(AuthConfirm, self)._signup_with_values(token, values)
         else:
-            raise SignupDenied('Authentification Denied.')
+            raise SignupDenied(_('Authentification Denied'))
 
-    @http.route('/web/signup/thankyou/', type='http', auth='public')
+    @http.route('/web/signup/thankyou/', type='http', auth='public', website=True, sitemap=False)
     def thankyou(self, *args):
         # Show how to complete registration
-        return http.request.render('auth_signup_confirmation.index')
+        return request.render('auth_signup_confirmation.index')
 
-    @http.route('/web/signup', type='http', auth='public')
+    # TODO: проверить
+    @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
     def web_auth_signup(self, *args, **kw):
         # super call without exception when user login with token. Its happends when user created via backend.
         try:
@@ -46,7 +48,7 @@ class AuthConfirm(AuthSignupHome):
         qcontext['error'] = 'A user with this email address is already registered'
         return request.render('auth_signup.signup', qcontext)
 
-    @http.route('/web/signup/confirm', type='http', auth='public')
+    @http.route('/web/signup/confirm', type='http', auth='public', website=True, sitemap=False)
     def singnup_using_generated_link(self, *args, **kw):
         user = request.env['res.users'].sudo().with_context(active_test=False).search([
             ('partner_id.signup_token', '=', kw['token'])])

@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
+<odoo>
         <template id="index">
-            <t t-call="web.layout">
+            <t t-call="web.frontend_layout">
                 <t t-set="title">Thank you for registration!</t>
-                <div class="oe_structure">
-                    <div class="container" style="margin:32px;">
+                <div class="container">
                         <h2>Thank you for registration!</h2>
                         <h3>We send an email to you with registration link. <br/>Please open that link in your browser to
                             complete registration.
                         </h3>
                     </div>
-                </div>
             </t>
         </template>
-    </data>
-</openerp>
+</odoo>
