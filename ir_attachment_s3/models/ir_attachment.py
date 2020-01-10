@@ -125,6 +125,7 @@ class IrAttachment(models.Model):
                     Body=bin_data,
                     ACL='public-read',
                     ContentType=attach.mimetype,
+                    ContentDisposition='attachment; filename = "' + str(attach.datas_fname).replace('"', '_') + '"',
                 )
             except botocore.exceptions.ClientError as e:
                 raise exceptions.UserError(str(e))

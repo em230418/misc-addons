@@ -79,6 +79,7 @@ class S3Settings(models.TransientModel):
                         Body=bin_data,
                         ACL='public-read',
                         ContentType=attach.mimetype,
+                        ContentDisposition='attachment; filename = "' + str(attach.datas_fname).replace('"', '_') + '"',
                         )
                 except Exception as e:
                     raise exceptions.UserError(e.message)
