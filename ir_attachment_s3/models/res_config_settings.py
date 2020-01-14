@@ -3,9 +3,12 @@
 # Copyright 2019 Eugene Molotov <https://it-projects.info/team/em230418>
 import base64
 import hashlib
+import logging
 
 from odoo.tools.safe_eval import safe_eval
 from odoo import models, fields, api, exceptions, _
+
+_logger = logging.getLogger(__name__)
 
 
 class S3IrAttachmentSettings(models.TransientModel):
@@ -59,6 +62,11 @@ class S3Settings(models.TransientModel):
         attachments = self.env['ir.attachment'].search(domain)
         attachments = attachments._filter_protected_attachments()
 
+        upload_cnt_todo = len(attachments)
+        upload_cnt_done = 0
+
+        _logger.info("{} attachment(s) to upload".format(upload_cnt_todo))
+
         if attachments:
 
             s3 = self.env['ir.attachment']._get_s3_resource()
@@ -73,6 +81,12 @@ class S3Settings(models.TransientModel):
 
                 bucket_name = self.s3_bucket
 
+                _logger.info("Uploading {} ({} of {})".format(
+                    attach.datas_fname,
+                    upload_cnt_todo,
+                    upload_cnt_done,
+                ))
+
                 try:
                     s3.Bucket(bucket_name).put_object(
                         Key=fname,
@@ -84,6 +98,8 @@ class S3Settings(models.TransientModel):
                 except Exception as e:
                     raise exceptions.UserError(e.message)
 
+                upload_cnt_done += 1
+
                 vals = {
                     'file_size': len(bin_data),
                     'checksum': attach._compute_checksum(bin_data),
@@ -94,3 +110,5 @@ class S3Settings(models.TransientModel):
                     'url': attach._get_s3_object_url(s3, bucket_name, fname),
                 }
                 attach.write(vals)
+
+        _logger.info("Uploading finished")
