@@ -29,7 +29,7 @@ Maintainers
 
       To get a guaranteed support
       you are kindly requested to purchase the module
-      at `odoo apps store <https://apps.odoo.com/apps/modules/11.0/web_image_cache/>`__.
+      at `odoo apps store <https://apps.odoo.com/apps/modules/13.0/web_image_cache/>`__.
 
       Thank you for understanding!
 
@@ -38,14 +38,14 @@ Maintainers
 Further information
 ===================
 
-Demo: http://runbot.it-projects.info/demo/misc-addons/11.0
+Demo: http://runbot.it-projects.info/demo/misc-addons/13.0
 
-HTML Description: https://apps.odoo.com/apps/modules/11.0/web_image_cache/
+HTML Description: https://apps.odoo.com/apps/modules/13.0/web_image_cache/
 
 Usage instructions: `<doc/index.rst>`_
 
 Changelog: `<doc/changelog.rst>`_
 
-Notifications on updates: `via Atom <https://github.com/it-projects-llc/misc-addons/commits/11.0/web_image_cache.atom>`_, `by Email <https://blogtrottr.com/?subscribe=https://github.com/it-projects-llc/misc-addons/commits/11.0/web_image_cache.atom>`_
+Notifications on updates: `via Atom <https://github.com/it-projects-llc/misc-addons/commits/13.0/web_image_cache.atom>`_, `by Email <https://blogtrottr.com/?subscribe=https://github.com/it-projects-llc/misc-addons/commits/13.0/web_image_cache.atom>`_
 
-Tested on Odoo 11.0 f1e79c74a5c07d6be3154629f6f381ebaf907fb1
+Tested on Odoo 13.0 f862f9650395b02f6a43c57cdf232a309fa6948e

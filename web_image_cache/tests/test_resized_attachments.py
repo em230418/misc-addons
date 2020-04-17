@@ -6,19 +6,17 @@
 from werkzeug.urls import Href
 
 from odoo import api, exceptions
-from odoo.tests.common import HttpCase
+from odoo.tests.common import HttpCase, tagged
 
 
+@tagged("-at_install", "post_install")
 class TestResizedAttachments(HttpCase):
-    at_install = False
-    post_install = True
-
     def test_getting_cached_images_instead_computing(self):
         env = api.Environment(self.registry.test_cr, self.uid, {})
 
         record = env.ref("product.product_product_9").product_tmpl_id
         href = Href("/web/image")
-        field = "image"
+        field = "image_1920"
         model = record._name
         width = 300
         height = 300
@@ -76,10 +74,10 @@ class TestResizedAttachments(HttpCase):
         self.assertTrue(original_att.unlink())
 
         with self.assertRaises(exceptions.MissingError):
-            original_att.write({"name": "foo"})
+            original_att.datas  # pylint: disable=pointless-statement
 
         with self.assertRaises(exceptions.MissingError):
-            ir_att_resized.write({"width": 1})
+            ir_att_resized.attachment_id  # pylint: disable=pointless-statement
 
         with self.assertRaises(exceptions.MissingError):
-            resized_att.write({"name": "bar"})
+            resized_att.datas  # pylint: disable=pointless-statement

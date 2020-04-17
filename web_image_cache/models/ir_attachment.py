@@ -21,7 +21,6 @@ class IrAttachmentResized(models.Model):
     crop = fields.Boolean()
     resized_attachment_id = fields.Many2one("ir.attachment", ondelete="cascade")
 
-    @api.multi
     def unlink(self):
         # we also unlink resized_attachment_id
         resized_att_id = self.resized_attachment_id
@@ -34,7 +33,6 @@ class IrAttachment(models.Model):
 
     resized_ids = fields.One2many("ir.attachment.resized", "attachment_id")
 
-    @api.multi
     def unlink(self):
         resized_ids = self.mapped("resized_ids")
         super(IrAttachment, self).unlink()
