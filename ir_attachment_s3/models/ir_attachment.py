@@ -9,7 +9,7 @@
 import base64
 import logging
 
-from odoo import api, models
+from odoo import models
 from odoo.tools import human_size
 from odoo.tools.safe_eval import safe_eval
 
@@ -24,7 +24,6 @@ class IrAttachment(models.Model):
 
     _inherit = "ir.attachment"
 
-    @api.multi
     def _filter_protected_attachments(self):
         return self.filtered(
             lambda r: r.res_model not in ["ir.ui.view", "ir.ui.menu"]
@@ -69,14 +68,11 @@ class IrAttachment(models.Model):
             vals = {
                 "file_size": len(bin_data),
                 "checksum": checksum,
-                "index_content": self._index(
-                    bin_data, attach.datas_fname, attach.mimetype
-                ),
+                "index_content": self._index(bin_data, attach.mimetype),
                 "store_fname": fname,
                 "db_datas": False,
                 "type": "binary",
                 "url": url,
-                "datas_fname": attach.datas_fname,
             }
             super(IrAttachment, attach.sudo()).write(vals)
 
