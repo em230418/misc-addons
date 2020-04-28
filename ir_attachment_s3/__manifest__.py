@@ -10,7 +10,10 @@
     "license": "Other OSI approved licence",  # MIT
     "price": 200.00,
     "currency": "EUR",
-    "depends": ["base_setup"],
+    "depends": [
+        "base_setup",
+        "product",  # Note: product dependency is for unittests only
+    ],
     "external_dependencies": {"python": ["boto3"], "bin": []},
     "data": ["data/ir_attachment_s3_data.xml", "views/res_config_settings_views.xml"],
     "qweb": [],
