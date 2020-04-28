@@ -15,7 +15,6 @@
     "data": [
         "data/ir_attachment_url_data.xml",
         "views/ir_attachment_url_template.xml",
-        "views/ir_attachment_res_config.xml",
     ],
     "qweb": ["static/src/xml/ir_attachment_url.xml"],
     "demo": [],
