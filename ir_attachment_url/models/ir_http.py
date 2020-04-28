@@ -3,12 +3,6 @@
 # Copyright 2016-2018 Ivan Yelizariev <https://it-projects.info/team/yelizariev>
 # Copyright 2020 Eugene Molotov <https://it-projects.info/team/em230418>
 # License MIT (https://opensource.org/licenses/MIT).
-import base64
-import hashlib
-import mimetypes
-import os
-import re
-
 from odoo import models
 
 
@@ -48,7 +42,6 @@ class IrHttp(models.AbstractModel):
     def _binary_record_content(self, record, **kw):
         model = record._name
         field = kw.get("field", "datas")
-        res_id = record.id
 
         filename = kw.get("filename")
         mimetype = "mimetype" in record and record.mimetype or False
