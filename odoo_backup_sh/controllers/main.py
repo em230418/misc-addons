@@ -623,6 +623,26 @@ class BackupCloudStorage(http.Controller):
 
     @classmethod
     @access_control
+    def upload_fileobj(cls, cloud_params, obj, obj_key):
+        amazon_s3_client = cls.get_amazon_s3_client(cloud_params)
+        _logger.debug("upload_fileobj: %s", obj_key)
+        uploaded_bytes = 0
+
+        def progress(chunk):
+            nonlocal uploaded_bytes
+            uploaded_bytes += chunk
+            if uploaded_bytes % 100000000 < chunk:
+                _logger.debug("upload_fileobj: %s: progress %s", obj_key, uploaded_bytes)
+
+        amazon_s3_client.upload_fileobj(
+            obj, cloud_params["odoo_backup_sh.s3_bucket_name"], obj_key, Callback=progress
+        )
+        _logger.info(
+            "Following backup object have been uploaded to the remote storage: %s" % obj_key
+        )
+
+    @classmethod
+    @access_control
     def delete_objects(cls, cloud_params, s3_keys):
         objs = [{"Key": key} for key in s3_keys]
 

@@ -728,7 +728,7 @@ class BackupConfig(models.Model):
                 path = BackupCloudStorage.get_s3_dir(cloud_params)
                 obj_key = "{}/{}".format(path, obj_name)
                 info_file_content["backup_path"] = path
-                res = BackupCloudStorage.put_object(cloud_params, obj, obj_key)
+                res = BackupCloudStorage.upload_fileobj(cloud_params, obj, obj_key)
                 if res and "reload_page" in res:
                     return res
             except Exception as e:
